@@ -1,0 +1,165 @@
+﻿@using ProjetoWeb.Models;
+@model ProjetoWeb.Models.RetornoSaida
+@{
+    ViewBag.Title = "Saida";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+
+        function PreencheProdutoByIdEmpresa(idEmpresa) {
+            $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("getProdutoByEmpresaContemEstoque")",
+                type: "GET",
+                dataType: "json",
+                data: {
+                    idEmpresa: idEmpresa
+                },
+                success: function (result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro)
+                    }
+                    else
+                    {
+                        var opcoes = "";
+                        for (let elem in result.listProdutos) {
+                            opcoes = opcoes + "<option class='idProduto' value='" + result.listProdutos[elem].id + "'>" + result.listProdutos[elem].nomeProduto + "</option>"
+                        }
+                        $(".idProduto").remove();
+                        $(".selecioneProd").remove();
+                        $(".selectProduto").html(opcoes);
+                    }
+                }
+            });
+    }
+
+    function PreencheEmpresa() {
+            $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("getEmpresaContemEstoque")",
+                type: "GET",
+                success: function (result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro)
+                    }
+                    else
+                    {
+                        var opcoes = "";
+                        for (let elem in result.listEmpresas) {
+                            opcoes = opcoes + "<option class='idEmpresa' value='" + result.listEmpresas[elem].id + "'>" + result.listEmpresas[elem].nome + "</option>"
+                        }
+                        $(".idEmpresa").remove();
+                        $(".selecioneEmp").remove();
+                        $(".selectEmpresa").html(opcoes);
+                        PreencheProdutoByIdEmpresa($(".selectEmpresa option:selected").val());
+                    }
+                }
+            });
+        }
+
+        $(".btnSaida").click(function () {
+            PreencheEmpresa();
+        });
+
+        $('.selectEmpresa').on('change', function () {
+            $(".idProduto").remove();
+            PreencheProdutoByIdEmpresa($(".selectEmpresa option:selected").val());
+        });
+
+        $('#submitSaida').click(function () {
+            var idProduto = $(".selectProduto option:selected").val();
+            var idEmpresa = $(".selectEmpresa option:selected").val();
+            var quantidade = $("#quantidade").val();
+            if (quantidade > 0) {
+                var data0 = { idProduto: idProduto, idEmpresa: idEmpresa, quantidade: quantidade };
+
+                $.ajax({
+                    url: "/Saida/Cadastrar",
+                    type: "POST",
+                    dataType: "json",
+                    data: data0,
+                    success: function (result) {
+                        if (result.sucesso == false) {
+                            alert(result.erro);
+                        } else {
+                            alert("Saída inserida com sucesso.");
+                            $("#myModal").hide();
+                            window.location.reload();
+                        }
+                    }
+                });
+            } else {
+                alert("A quantidade deve ser maior que 0.");
+            }
+        });
+
+    });
+</script>
+
+<h1>Saída de mercadoria</h1>
+
+<button id="myBtn" class="btnSaida">Nova Saída</button>
+<table class="tabela">
+    <tr>
+        <td>
+            <b class="texto14">Empresa</b>
+        </td>
+        <td>
+            <b class="texto14">Produto</b>
+        </td>
+        <td>
+            <b class="texto14">Cód. Produto</b>
+        </td>
+        <td>
+            <b class="texto14">Quantidade</b>
+        </td>
+    </tr>
+    @foreach (Saida saida in Model.listSaidas)
+    {
+        <tr value="@saida.id">
+            <td>
+                <b class="texto">@saida.empresa.nome</b>
+            </td>
+            <td>
+                <b class="texto">@saida.produto.nomeProduto</b>
+            </td>
+            <td>
+                <b class="texto">@saida.produto.codProduto</b>
+            </td>
+            <td>
+                <b class="texto">@saida.quantidade</b>
+            </td>
+        </tr>
+    }
+</table>
+
+<div id="myModal" class="modal">
+
+    <div class="modal-content">
+        <span class="close" id="close">&times;</span>
+        <form id="formulario" action="/entrada/Cadastrar" method="post">
+            <fieldset class="center-block">
+                <fieldset>
+                    <div class="campo">
+                        <label class="col-sm-12 texto" for="empresa">Selecione a empresa:</label>
+                        <select class="selectEmpresa form-control col-sm-12 texto">
+                            <option class="selecioneEmp">selecione</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label class="col-sm-12 texto" for="produto">Selecione o produto:</label>
+                        <select class="selectProduto form-control col-sm-12 texto">
+                            <option class="selecioneProd">selecione</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label class="col-sm-12 texto" for="quantidade">Quantidade:</label>
+                        <input class="col-sm-12 texto" type="number" id="quantidade" name="quantidade" style="width: auto" value="">
+                    </div>
+                </fieldset>
+                <button class="submit" id="submitSaida" type="button" name="submit">Cadastrar Saída</button>
+            </fieldset>
+        </form>
+    </div>
+</div>
+

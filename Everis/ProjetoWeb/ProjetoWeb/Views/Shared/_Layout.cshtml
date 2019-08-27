@@ -1,0 +1,299 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="~/Scripts/jquery-3.3.1.min.js">
+
+    </script>
+
+    <style>
+        .menuLi {
+            float: left;
+            border: 1px solid gray;
+        }
+
+        .menuItem {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .menuUl {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        .campo {
+            margin: 10px;
+        }
+
+        .submit {
+            margin-left: 20%;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        .texto {
+            margin-left: auto;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        #formulario {
+            margin: auto;
+        }
+
+        #myBtn {
+            font-size: 12px;
+            margin-top: 12px;
+            font-weight: bold
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .texto14 {
+            margin-left: auto;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .tabela {
+            margin-top: 30px;
+        }
+
+        .close {
+            color: #aaaaaa;
+            margin-left: 90%;
+            position: relative;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+            .close:hover, .close:focus{
+                color: #000;
+                text-decoration: none;
+                cursor: pointer;
+            }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            var modal = $("#myModal");
+            var modalEdit = $("#myModalEdit");
+            var idEdit;
+
+            jQuery("#myBtn").click(function () {
+                modal.show();
+            });
+
+            jQuery("#close").click(function () {
+                modal.hide();
+            });
+
+            jQuery("#closeEdit").click(function () {
+                modalEdit.hide();
+            });
+
+            $(".editProd").click(function () {
+                modalEdit.show();
+                setIdEdit($(this).val());
+                jQuery("#submitEditProd").val(idEdit);
+                var seletor = ".nomeProduto-" + idEdit;
+                var valor = $(seletor).text();
+                jQuery("#edNomeProduto").val(valor);
+
+                seletor = ".codProduto-" + idEdit;
+                valor = $(seletor).text();
+                jQuery("#edCodProduto").val(valor);
+
+                seletor = ".nrEAN-" + idEdit;
+                valor = $(seletor).text();
+                jQuery("#edNr_EAN").val(valor);
+                
+            });
+
+            jQuery("#submitEditProd").click(function () {
+                var nome;
+                var cod;
+                var ean;
+                if ($("#edNomeProduto").val().length > 0) {
+                    nome = true;
+                }
+                if ($("#edCodProduto").val().length > 0) {
+                    cod = true;
+                }
+                if ($("#edNr_EAN").val().length > 0) {
+                    ean = true;
+                }
+                if (nome == true && cod == true && ean == true) {
+                    submitEditProd();
+                } else {
+                    alert("Preencha todos os campos.");
+                }
+            });
+
+            function submitEditProd() {
+                var r = confirm("Deseja mesmo atualizar esse produto?");
+                if (r == true) {
+                var id = jQuery("#submitEditProd").val();
+                var nome = jQuery("#edNomeProduto").val();
+                var codProduto = jQuery("#edCodProduto").val();
+                var nrEAN = jQuery("#edNr_EAN").val();
+                var data0 = { id: id, nomeProduto: nome, codProduto: codProduto, nr_EAN: nrEAN };
+
+            $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("produtoUpdate")",
+                type: "POST",
+                dataType: "json",
+                data: data0,
+                success: function(result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro);
+                    }else{
+                        alert("Atualizado com sucesso.");
+                        modalEdit.hide();
+                        window.location.reload();
+                    }
+                }
+             });
+          }
+        }
+
+            //-------------------------------------------------------------------------------
+
+            $(".editEmp").click(function () {
+                modalEdit.show();
+                setIdEdit($(this).val());
+                jQuery("#submitEditEmp").val(idEdit);
+                var seletor = ".nome-" + idEdit;
+                var valor = $(seletor).text();
+                jQuery("#edNome").val(valor);
+
+                seletor = ".cnpj-" + idEdit;
+                valor = $(seletor).text();
+                jQuery("#edCnpj").val(valor);
+                
+            });
+
+            jQuery("#submitEditEmp").click(function () {
+                var nome;
+                var cnpj;
+                if ($("#edNome").val().length > 0) {
+                    nome = true;
+                }
+                if ($("#edCnpj").val().length > 0) {
+                    cnpj = true;
+                }
+                if (nome == true && cnpj == true) {
+                    submitEditEmp();
+                } else {
+                    alert("Preencha todos os campos.");
+                }
+            });
+
+            function submitEditEmp() {
+                var r = confirm("Deseja mesmo atualizar essa empresa?");
+                if (r == true) {
+                    var id = jQuery("#submitEditEmp").val();
+                    var nome = jQuery("#edNome").val();
+                    var cnpj = jQuery("#edCnpj").val();
+                    var data0 = { id: id, nome: nome, cnpj: cnpj};
+
+            $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("empresaUpdate")",
+                type: "POST",
+                dataType: "json",
+                data: data0,
+                success: function(result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro);
+                    }else{
+                        alert("Atualizado com sucesso.");
+                        modalEdit.hide();
+                        window.location.reload();
+                    }
+                }
+             });
+          }
+        }
+
+            function setIdEdit(id) {
+                idEdit = id;
+            }
+        });
+    </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Meu Aplicativo ASP.NET</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top col-sm-12">
+        <div class="">
+            <div class="">
+                <ul class="nav form-inline menuUl">
+                    <li class="menuLi" style="font-size: 14px">@Html.ActionLink("Visualizar Estoque", "Index", "Estoque", new { area = "" }, new { @class = "menuItem" })</li>
+                    <li class="menuLi" style="font-size: 14px">@Html.ActionLink("Realizar Entrada", "Entrada", "Entrada", new { area = "" }, new { @class = "menuItem" })</li>
+                    <li class="menuLi" style="font-size: 14px">@Html.ActionLink("Realizar Saída", "Saida", "Saida", new { area = "" }, new { @class = "menuItem" })</li>
+                    <li class="menuLi" style="font-size: 14px">@Html.ActionLink("Cadastrar Empresa", "CadastrarEmpresa", "Empresa", new { area = "" }, new { @class = "menuItem" })</li>
+                    <li class="menuLi" style="font-size: 14px">@Html.ActionLink("Cadastrar Produto", "CadastrarProduto", "Produto", new { area = "" }, new { @class = "menuItem" })</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Warehouse Management System (WMS) @@Everis</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

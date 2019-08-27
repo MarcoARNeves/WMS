@@ -1,0 +1,158 @@
+﻿@using ProjetoWeb.Models;
+@model ProjetoWeb.Models.RetornoEmpresa
+@{
+    ViewBag.Title = "Cadastrar Empresa";
+}
+
+<script>
+    $(document).ready(function(){
+
+        jQuery(".excluir").click(function () {
+            var r = confirm("Deseja mesmo excluir essa empresa?");
+            if (r == true) {
+                var idButton = $(this).val()
+            $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("empresaDelete")",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    id: idButton
+                },
+                success: function (result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro)
+                    }
+                    else
+                    {
+                        alert("Excluído com sucesso.")
+                        var seletor = 'tr[value = ":x"]'
+                        seletor = seletor.replace(":x", idButton);
+                        jQuery(seletor).hide();
+                    }
+                }
+            });
+            } 
+        });
+
+        jQuery("#submitEmp").click(function () {
+            var nome = $("#nome").val();
+            var cnpj = $("#cnpj").val();
+            if($.isNumeric(cnpj)){
+                $.ajax({
+                    url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("empresaCreate")",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        nome: nome,
+                        cnpj: cnpj
+                    },
+                    success: function (result) {
+                        if (result.sucesso == false) {
+                            alert(result.erro)
+                        }
+                        else {
+                            alert("Empresa cadastrada com sucesso.")
+                            $("#myModal").hide();
+                            window.location.reload();
+                        }
+                    }
+                });
+            } else {
+                alert("O CNPJ deve conter apenas números!");
+            }
+        });
+    });
+</script>
+
+@if (!(Model == null))
+{
+    if (Model.sucesso == true)
+    {
+        <script>
+            alert("Empresa cadastrada com sucesso.");
+        </script>
+    }
+    else if(Model.sucesso == false)
+    {
+        <script>
+                    alert('@Model.erro');
+        </script>
+    }
+}
+<h1>Cadastro de empresa</h1>
+<button id="myBtn">Cadastrar Empresa</button>
+<table class="tabela">
+
+    <tr>
+        <td>
+            <b class="texto14">Empresa</b>
+        </td>
+        <td>
+            <b class="texto14">CNPJ</b>
+        </td>
+        <td>
+            <b class="texto14">Ação</b>
+        </td>
+    </tr>
+    @foreach (Empresa empresa in Model.listEmpresas)
+    {
+        <tr value="@empresa.id">
+            <td>
+                <b class="texto nome-@empresa.id">@empresa.nome</b>
+            </td>
+            <td>
+                <b class="texto cnpj-@empresa.id">@empresa.CNPJ</b>
+            </td>
+            <td>
+                <button value="@empresa.id" class="btn btn-default excluir">Excluir <span class="glyphicon glyphicon-trash"></span></button>
+                <button value="@empresa.id" id="" class="btn btn-default editEmp">Editar <span class="glyphicon glyphicon-pencil"></span></button>
+            </td>
+        </tr>
+    }
+</table>
+    
+
+    <div id="myModal" class="modal">
+
+        <div class="modal-content">
+            <span class="close" id="close">&times;</span>
+            <form id="formulario" action="#" method="post">
+                <fieldset class="center-block">
+                    <fieldset>
+                        <div class="campo">
+                            <label class="col-sm-12 texto" for="nome">Nome</label>
+                            <input class="col-sm-12 text" type="text" id="nome" name="nome" style="width: auto" value="">
+                        </div>
+                        <div class="campo">
+                            <label class="col-sm-12 texto" for="cnpj">CNPJ</label>
+                            <input class="col-sm-12 text" type="number" id="cnpj" name="cnpj" style="width: auto" value="">
+                        </div>
+                    </fieldset>
+                    <button class="submit" type="button" id="submitEmp" name="submit">Cadastrar</button>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+
+    <div id="myModalEdit" class="modal">
+
+        <div class="modal-content">
+            <span class="close" id="closeEdit">&times;</span>
+            <form id="formulario" action="#" method="post">
+                <fieldset class="center-block">
+                    <fieldset>
+                        <div class="campo">
+                            <label class="col-sm-12 texto" for="nome">Nome</label>
+                            <input class="col-sm-12 text" type="text" id="edNome" name="nome" style="width: auto" value="">
+                        </div>
+                        <div class="campo">
+                            <label class="col-sm-12 texto" for="cnpj">CNPJ</label>
+                            <input class="col-sm-12 text" type="number" id="edCnpj" name="cnpj" style="width: auto" value="">
+                        </div>
+                    </fieldset>
+                    <button class="submit" id="submitEditEmp" type="button" name="submitEdit">Cadastrar</button>
+                </fieldset>
+            </form>
+        </div>
+    </div>

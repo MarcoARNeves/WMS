@@ -1,0 +1,238 @@
+﻿@using ProjetoWeb.Models;
+@model ProjetoWeb.Models.RetornoEstoque
+@{
+    ViewBag.Title = "Estoque";
+}
+<style>
+    .texto {
+        margin-left: auto;
+        margin-top: 10px;
+        font-size: 12px;
+    }
+
+    .selectEmpresa, .selectProduto {
+        float: left;
+        width: 50%;
+        height: calc(1.5em + .75rem + 2px);
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s
+    }
+
+    .btnEstoque {
+        margin-left: 15px;
+        margin-top:8px;
+    }
+
+    .tabelaEstoque{
+        margin-top: 50px;
+    }
+
+    .ped-bot{
+        padding-bottom: 30px;
+    }
+
+</style>
+
+<script>
+    $(document).ready(function () {
+         $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("getEmpresaContemEstoque")",
+                type: "GET",
+                success: function (result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro)
+                    }
+                    else
+                    {
+                        var opcoes = "";
+                        for (let elem in result.listEmpresas) {
+                            opcoes = opcoes + "<option class='idEmpresa' value='" + result.listEmpresas[elem].id + "'>" + result.listEmpresas[elem].nome + "</option>"
+                        }
+                        $(".selectEmpresa").html(opcoes);
+                    }
+                }
+         });
+
+        $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("getProdutoContemEstoque")",
+                type: "GET",
+                success: function (result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro)
+                    }
+                    else
+                    {
+                        var opcoes = "";
+                        for (let elem in result.listProdutos) {
+                            opcoes = opcoes + "<option class='idProduto' value='" + result.listProdutos[elem].id + "'>" + result.listProdutos[elem].nomeProduto + "</option>"
+                        }
+                        $(".selectProduto").html(opcoes);
+                    }
+                }
+        });
+
+        $("#pesquisaEmpresa").click(function () {
+            var idEmpresa = $(".selectEmpresa option:selected").val();
+
+            $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("getEstoqueByEmpresa")",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    idEmpresa: idEmpresa
+                },
+                success: function (result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro);
+                    } else {
+                        var opcoes = "<tr>"+
+                            "<td>"+
+                            "<b class='texto14'>Empresa</b>"+
+                            "</td>"+
+                            "<td>"+
+                                "<b class='texto14'>Produto</b>"+
+                            "</td>"+
+                            "<td>"+
+                                "<b class='texto14'>Cód. Produto</b>"+
+                            "</td>" +
+                            "<td>" +
+                                "<b class='texto14'>Quantidade</b>"+
+                            "</td>" +
+                            "</tr >";
+                        for (let elem in result.listEstoque) {
+                            opcoes = opcoes + '<tr class="linhaTabela" value="' + elem.id + '">' +
+                                '<td>' +
+                                '<b class="texto">' + result.listEstoque[elem].empresa.nome + '</b>' +
+                                '</td>' +
+                                '<td>' +
+                                '<b class="texto">' + result.listEstoque[elem].produto.nomeProduto + '</b>' +
+                                '</td>' +
+                                '<td>' +
+                                '<b class="texto">' + result.listEstoque[elem].produto.codProduto + '</b>' +
+                                '</td>' +
+                                '<td>' +
+                                '<b class="texto">' + result.listEstoque[elem].quantidade + '</b>' +
+                                '</td>' +
+                                '</tr>'
+                        }
+                        $(".linhaTabela").remove();
+                        $(".tabelaEstoque").html(opcoes);
+                    }
+                }
+             });
+        });
+
+        $("#pesquisaProduto").click(function () {
+            var idProduto = $(".selectProduto option:selected").val();
+
+            $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("getEstoqueByProduto")",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    idProduto: idProduto
+                },
+                success: function (result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro);
+                    } else {
+                        var opcoes = "<tr>"+
+                            "<td>"+
+                            "<b class='texto14'>Empresa</b>"+
+                            "</td>"+
+                            "<td>"+
+                                "<b class='texto14'>Produto</b>"+
+                            "</td>"+
+                            "<td>"+
+                                "<b class='texto14'>Cód. Produto</b>"+
+                            "</td>" +
+                            "<td>" +
+                                "<b class='texto14'>Quantidade</b>"+
+                            "</td>" +
+                            "</tr >";
+                        for (let elem in result.listEstoque) {
+                            opcoes = opcoes + '<tr class="linhaTabela" value="' + elem.id + '">' +
+                                '<td>' +
+                                '<b class="texto">' + result.listEstoque[elem].empresa.nome + '</b>' +
+                                '</td>' +
+                                '<td>' +
+                                '<b class="texto">' + result.listEstoque[elem].produto.nomeProduto + '</b>' +
+                                '</td>' +
+                                '<td>' +
+                                '<b class="texto">' + result.listEstoque[elem].produto.codProduto + '</b>' +
+                                '</td>' +
+                                '<td>' +
+                                '<b class="texto">' + result.listEstoque[elem].quantidade + '</b>' +
+                                '</td>' +
+                                '</tr>'
+                        }
+                        $(".linhaTabela").remove();
+                        $(".tabelaEstoque").html(opcoes);
+                    }
+                }
+             });
+        });
+
+    });
+</script>
+   
+<h1>Estoque</h1>
+<div class="col-sm-12 ped-bot">
+    <div class="col-sm-6">
+        <p class="texto">Buscar por empresa:</p>
+        <div class="col-sm-12">
+            <select class="selectEmpresa texto"></select>
+            <button class="btnEstoque texto" id="pesquisaEmpresa">Pesquisar Empresa</button>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <p class="texto">Buscar por produto:</p>
+        <div class="col-sm-12">
+            <select class="selectProduto texto"></select>
+            <button class="btnEstoque texto" id="pesquisaProduto">Pesquisar Produto</button>
+        </div>
+    </div>
+</div>
+<div class="tabela">
+    <table class="tabelaEstoque">
+        <tr>
+            <td>
+                <b class="texto14">Empresa</b>
+            </td>
+            <td>
+                <b class="texto14">Produto</b>
+            </td>
+            <td>
+                <b class="texto14">Cód. Produto</b>
+            </td>
+            <td>
+                <b class="texto14">Quantidade</b>
+            </td>
+        </tr>
+        @foreach (Estoque estoque in Model.listEstoque)
+        {
+            <tr class="linhaTabela" value="@estoque.id">
+                <td>
+                    <b class="texto">@estoque.empresa.nome</b>
+                </td>
+                <td>
+                    <b class="texto">@estoque.produto.nomeProduto</b>
+                </td>
+                <td>
+                    <b class="texto">@estoque.produto.codProduto</b>
+                </td>
+                <td>
+                    <b class="texto">@estoque.quantidade</b>
+                </td>
+            </tr>
+        }
+    </table>
+</div>

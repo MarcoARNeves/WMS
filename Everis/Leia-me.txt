@@ -1,0 +1,5 @@
+Caso houver algum problema no ProjetoWeb para se comunicar com a API mudar o valor de "urlApiEveris" no Web.config
+
+Caso problema de comunicação da API com o banco mudar o valor de "conexao" na Web.config da API
+
+Os projetos foram feitos utilizando VS 2017, SQL Server e MySql

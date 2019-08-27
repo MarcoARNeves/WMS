@@ -1,0 +1,30 @@
+CREATE DATABASE wmsEveris;
+USE wmsEveris;
+CREATE TABLE tbEmpresa(
+	id int identity(1,1) primary key,
+	nomeEmpresa varchar(50) not null UNIQUE,
+	cnpj varchar(30) not null UNIQUE);
+	
+CREATE TABLE tbProduto(
+	id int identity(1,1) primary key,
+	codProduto varchar(10) not null UNIQUE,
+	nomeProduto varchar(100) not null,
+	nr_EAN varchar(15) not null UNIQUE);
+	
+CREATE TABLE tbControleSaida(
+	id int identity(1,1) primary key,
+	idEmpresa int not null,
+	idProduto int not null,
+	quantidade int not null);
+	
+CREATE TABLE tbControleEntrada(
+	id int identity(1,1) primary key,
+	idEmpresa int not null,
+	idProduto int not null,
+	quantidade int not null);
+	
+CREATE TABLE tbEstoque(
+	id int identity(1,1) primary key,
+	idEmpresa int not null,
+	idProduto int not null,
+	quantidade int not null);

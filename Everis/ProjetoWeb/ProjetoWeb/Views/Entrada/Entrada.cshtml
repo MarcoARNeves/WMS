@@ -1,0 +1,158 @@
+﻿@using ProjetoWeb.Models;
+@model ProjetoWeb.Models.RetornoEntrada
+@{
+    ViewBag.Title = "Entrada de mercadoria";
+}
+
+<style>
+    .tabela {
+        margin-top: 30px;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        var modal = $("#myModal");
+        $("#submitEntrada").click(function () {
+            var idProduto = $(".selectProduto option:selected").val();
+            var idEmpresa = $(".selectEmpresa option:selected").val();
+            var quantidade = $("#quantidade").val();
+            if (quantidade > 0) {
+                var data0 = { idProduto: idProduto, idEmpresa: idEmpresa, quantidade: quantidade };
+
+                $.ajax({
+                    url: "/Entrada/Cadastrar",
+                    type: "POST",
+                    dataType: "json",
+                    data: data0,
+                    success: function (result) {
+                        if (result.sucesso == false) {
+                            alert(result.erro);
+                        } else {
+                            alert("Entrada inserida com sucesso.");
+                            modal.hide();
+                            window.location.reload();
+                        }
+                    }
+                });
+            } else {
+                alert("A quantidade deve ser maior que 0.");
+            }
+        });
+        
+        function PreencheProduto() {
+            $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("produtoGet")",
+                type: "GET",
+                success: function (result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro)
+                    }
+                    else
+                    {
+                        var opcoes = "";
+                        for (let elem in result.listProdutos) {
+                            opcoes = opcoes + "<option id='idProduto' value='" + result.listProdutos[elem].id + "'>" + result.listProdutos[elem].nomeProduto + "</option>"
+                        }
+                        $(".selecioneProd").remove();
+                        $(".selectProduto").html(opcoes);
+                    }
+                }
+            });
+    }
+
+    function PreencheEmpresa() {
+            $.ajax({
+                url: "/@System.Configuration.ConfigurationManager.AppSettings.Get("empresaGet")",
+                type: "GET",
+                success: function (result) {
+                    if (result.sucesso == false) {
+                        alert(result.erro)
+                    }
+                    else
+                    {
+                        var opcoes = "";
+                        for (let elem in result.listEmpresas) {
+                            opcoes = opcoes + "<option id='idEmpresa' value='" + result.listEmpresas[elem].id + "'>" + result.listEmpresas[elem].nome + "</option>"
+                        }
+                        $(".selecioneEmp").remove();
+                        $(".selectEmpresa").html(opcoes);
+                    }
+                }
+            });
+    }
+        jQuery("#myBtn").click(function () {
+            PreencheEmpresa();
+            PreencheProduto();
+        });
+    });
+</script>
+
+<h1>Entrada de mercadoria</h1>
+
+<button id="myBtn">Nova Entrada</button>
+<table class="tabela">
+    <tr>
+        <td>
+            <b class="texto14">Empresa</b>
+        </td>
+        <td>
+            <b class="texto14">Produto</b>
+        </td>
+        <td>
+            <b class="texto14">Cód. Produto</b>
+        </td>
+        <td>
+            <b class="texto14">Quantidade</b>
+        </td>
+    </tr>
+    @foreach (Entrada entrada in Model.listEntradas)
+    {
+        <tr value="@entrada.id">
+            <td>
+                <b class="texto">@entrada.empresa.nome</b>
+            </td>
+            <td>
+                <b class="texto">@entrada.produto.nomeProduto</b>
+            </td>
+            <td>
+                <b class="texto">@entrada.produto.codProduto</b>
+            </td>
+            <td>
+                <b class="texto">@entrada.quantidade</b>
+            </td>
+        </tr>
+    }
+</table>
+
+<div id="myModal" class="modal">
+
+    <div class="modal-content">
+        <span class="close" id="close">&times;</span>
+        <form id="formulario" action="/entrada/Cadastrar" method="post">
+            <fieldset class="center-block">
+                <fieldset>
+                    <div class="campo">
+                        <label class="col-sm-12 texto" for="empresa">Selecione a empresa:</label>
+                        <select class="selectEmpresa form-control col-sm-12 texto">
+                            <option class="selecioneEmp">selecione</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label class="col-sm-12 texto" for="produto">Selecione o produto:</label>
+                        <select class="selectProduto form-control col-sm-12 texto">
+                            <option class="selecioneProd">selecione</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label class="col-sm-12 texto" for="quantidade">Quantidade:</label>
+                        <input class="col-sm-12 texto" type="number" id="quantidade" name="quantidade" style="width: auto" value="">
+                    </div>
+                </fieldset>
+                <button class="submit" id="submitEntrada" type="button" name="submit">Cadastrar Entrada</button>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+
